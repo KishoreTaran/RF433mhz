@@ -1,0 +1,73 @@
+esphome:
+  name: rf-433mhz-receiver
+  friendly_name: RF-433Mhz-Receiver
+
+esp8266:
+  board: esp01_1m
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "RMlNzbYcxj9KGKlD6sjV2FaZEVewzi/+I5KjWhpPUrM="
+
+ota:
+  password: "cdb15c3fde8c8873257a34fdf1d52ec0"
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Rf-433Mhz-Receiver"
+    password: "UrCfhSy11ZLH"
+
+captive_portal:
+
+remote_receiver:
+  pin: GPIO 5
+  dump: 
+     - rc_switch
+  tolerance: 50%
+  filter: 250us
+  idle: 4ms
+  buffer_size: 2kb
+
+binary_sensor:
+  - platform: remote_receiver
+    name: RF Button fan
+    rc_switch_raw:
+      protocol: 1
+      code: '000000010110001101011000'
+    on_press:
+      then:
+        - switch.turn_on: fan
+        #- delay: 2000 ms
+        #- switch.turn_off: fan
+  - platform: remote_receiver
+    name: RF Button Light
+    rc_switch_raw:
+      protocol: 1
+      code: '000000010110001101010001'
+    on_press:
+      then:
+        - switch.turn_on: light
+        #- delay: 2000 ms
+        #- switch.turn_off: light
+
+switch:
+  - platform: gpio
+    pin:
+      number: GPIO 14
+      inverted: True
+    name: ${name} fan
+    id: fan
+  - platform: gpio
+    pin:
+      number: GPIO 16
+      inverted: True
+    name: ${name} light
+    id: light
